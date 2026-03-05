@@ -29,15 +29,13 @@ import qpsolvers
 
 
 
-
-
 # --------------------------------------------------------------------------
 # Load data
 # --------------------------------------------------------------------------
 
 # Load msci country index return series
 
-path_to_data = '../data/'
+path_to_data = '/Users/san/qpmwp-course/data/'
 # N = 24
 N = 10
 df = pd.read_csv(os.path.join(path_to_data, 'msci_country_indices.csv'),
@@ -128,7 +126,6 @@ G, h
 
 
 
-
 # --------------------------------------------------------------------------
 # Solve for the mean-variance optimal portfolio with fixed risk aversion parameter
 # --------------------------------------------------------------------------
@@ -140,19 +137,19 @@ G, h
 
 # Scale the covariance matrix by the risk aversion parameter
 risk_aversion = 1
-P = covmat * risk_aversion
+P = covmat * risk_aversion #lambda
 
 
 # Define problem and solve
 problem = qpsolvers.Problem(
     P = P.to_numpy(),
     q = mu.to_numpy() * -1,   # don't forget to multiply by -1 since we are minimizing
-    G = G,
+    G = G,    #inequality
     h = h,
-    A = A,
+    A = A,    #equality
     b = b,
-    lb = lb,
-    ub = ub
+    lb = lb,  #lower bound
+    ub = ub  #upper bound
 )
 
 solution = qpsolvers.solve_problem(
@@ -171,7 +168,7 @@ solution.obj
 solution.is_optimal
 solution.primal_residual
 solution.dual_residual
-solution.duality_gap
+solution.duality_gap #should be very low (e-16)
 
 solution.x
 
@@ -195,7 +192,7 @@ weights_mv.plot(kind='bar')
 # Define problem and solve
 problem = qpsolvers.Problem(
     P = covmat.to_numpy(),
-    q = (mu * 0).to_numpy(),
+    q = (mu * 0).to_numpy(),  #linear part required so just set weight of mu to 0
     G = G,
     h = h,
     A = A,
@@ -225,7 +222,7 @@ weights_minv.plot(kind='bar')
 # --------------------------------------------------------------------------
 # Efficient Frontier
 # Solve a sequence of mean-variance optimal portfolios
-# with varying risk aversion parameters
+# with varying risk aversion parameters (higher = more important)
 # --------------------------------------------------------------------------
 
 # Define a grid of risk aversion parameters
@@ -278,8 +275,14 @@ portf_return = weights_df @ mu
 
 plt.scatter(portf_vola, portf_return, c=portf_return / portf_vola, cmap='viridis')
 
+# Find the risk aversion parameter that maximizes the Sharpe ratio
+sr = portf_return / portf_vola
+idx_max = sr.idxmax()
+sr.plot()
+plt.axvline(idx_max, color='red', linestyle='--', label=f'Max')
+plt.legend
 
-
+# or sxvline?
 
 
 # Plot the historical returns of the portfolios on the efficient frontier
@@ -326,8 +329,9 @@ y
 
 
 # Coefficients of the least squares problem
+# solver will multiply with 1/2 - 2*
 
-P = 2 * (return_series.T @ return_series)
+P = 2 * (return_series.T @ return_series) 
 q = -2 * return_series.T @ y
 constant = y.T @ y
 

@@ -10,6 +10,7 @@
 
 
 
+
 # Under Terminal, click on New Terminal.
 # In the Terminal window, select Command Prompt.
 # Create and activate a virtual environment, and install required packages. For that, type the following commands:
@@ -23,6 +24,7 @@
 
 
 
+
 # Standard library imports
 import os
 
@@ -30,8 +32,10 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import cylp
 import cvxpy as cp
+
+
+
 
 
 
@@ -41,7 +45,7 @@ import cvxpy as cp
 
 # Load msci country index return series
 
-path_to_data = '/Users/san/qpmwp-course/data/'
+path_to_data = '../data/'
 # N = 24
 N = 10
 df = pd.read_csv(os.path.join(path_to_data, 'msci_country_indices.csv'),
@@ -68,7 +72,7 @@ plt.grid()
 plt.show()
 
 
-# log returns are only good to predict things, discrete for mean (geometric average)
+
 
 
 
@@ -86,8 +90,6 @@ scalefactor = 1  # could be set to 252 (trading days) for annualized returns
 
 ## This is correct:
 mu = np.exp(np.log(1 + return_series).mean(axis=0) * scalefactor) - 1
-
-# exp(log) = discrete again
 
 # Covariance matrix
 covmat = return_series.cov() * scalefactor
@@ -155,8 +157,6 @@ if A is not None:
 # Objective function
 obj = q @ x + 0.5 * cp.quad_form(x, P)
 
-# mu is now q and sigma is now P
-
 # Finalize problem
 model = cp.Problem(cp.Minimize(obj), cons_list)
 model
@@ -191,5 +191,3 @@ model.constraints[2].dual_value  # for third constraint
 
 
 
-
-  

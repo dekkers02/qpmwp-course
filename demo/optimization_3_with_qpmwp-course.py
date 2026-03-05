@@ -105,7 +105,7 @@ G = pd.DataFrame(np.zeros((2, N)), columns=constraints.ids)
 G.iloc[0, 0:5] = 1
 G.iloc[1, 5:10] = 1
 h = pd.Series([0.5, 0.5])
-constraints.add_linear(G=G, sense='<=', rhs=h)
+constraints.add_linear(G=G, sense='<=', rhs=h) # inequality
 
 
 constraints.budget
